@@ -8,3 +8,6 @@ bin/Win7/Win32/Release/MyLDe.log
 *.log
 *.suo
 Win7/MyLDe.VC.db
+*.ipch
+*.db
+*.filters
