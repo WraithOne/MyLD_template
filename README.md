@@ -4,7 +4,7 @@ Game template for Ludum Dare Game Jam
 IDE´s used:
 
 Visual Studio 2019\
-Windows10 (MSVC/)
+Windows10 (MSVS/)
 
 CodeBlocks\
 Ubuntu/Linux (CodeBlocks/)
