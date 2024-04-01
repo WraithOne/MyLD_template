@@ -16,6 +16,9 @@
     <ClCompile Include="..\..\..\source\Intro.cpp">
       <Filter>Game</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\source\Window.cpp">
+      <Filter>Engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\3rdParty.h">
@@ -29,6 +32,9 @@
     </ClInclude>
     <ClInclude Include="..\..\..\include\Intro.h">
       <Filter>Game</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\include\Window.h">
+      <Filter>Engine</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

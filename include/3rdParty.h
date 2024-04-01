@@ -1,4 +1,6 @@
 #pragma once
+// Raylib
+#include <..\\external\raylib\src\raylib.h>
 
 // Assimp
 

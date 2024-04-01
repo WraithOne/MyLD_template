@@ -22,12 +22,14 @@
     <ClCompile Include="..\..\..\source\Intro.cpp" />
     <ClCompile Include="..\..\..\source\main.cpp" />
     <ClCompile Include="..\..\..\source\SceneManager.cpp" />
+    <ClCompile Include="..\..\..\source\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\include\3rdParty.h" />
     <ClInclude Include="..\..\..\include\Intro.h" />
     <ClInclude Include="..\..\..\include\Scene.h" />
     <ClInclude Include="..\..\..\include\SceneManager.h" />
+    <ClInclude Include="..\..\..\include\Window.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
