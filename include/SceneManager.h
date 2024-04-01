@@ -1,6 +1,18 @@
+////////////////////////////////////////////
+//
+//	MyLDe - My Ludum Dare engine
+//
+//	@WraithOne
+//
+//	My little game engine for Ludum Dare
+//	and other Game Jams
+//
+////////////////////////////////////////////
+
 #pragma once
 #include <3rdparty.h>
 #include <Scene.h>
+
 class SceneManager
 {
 public:

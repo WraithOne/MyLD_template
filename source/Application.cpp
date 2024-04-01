@@ -7,10 +7,6 @@
 //	My little game engine for Ludum Dare
 //	and other Game Jams
 //
-//	Application.cpp
-//	Created: 29.10.2016
-//	Edited:	29.10.2016
-//
 ////////////////////////////////////////////
 
 #include "../include/Application.h"

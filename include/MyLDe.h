@@ -7,12 +7,9 @@
 //	My little game engine for Ludum Dare
 //	and other Game Jams
 //
-//	MyLDe.h
-//	Created: 29.10.2016
-//	Edited:	29.10.2016
-//
 ////////////////////////////////////////////
 
+#pragma once
 #ifndef MYLDE_H_
 #define MYLDE_H_
 

@@ -8,11 +8,10 @@
 //	and other Game Jams
 //
 //	Application.h
-//	Created: 29.10.2016
-//	Edited:	29.10.2016
 //
 ////////////////////////////////////////////
 
+#pragma once
 #ifndef APLLICATION_H_
 #define APLLICATION_H_
 
