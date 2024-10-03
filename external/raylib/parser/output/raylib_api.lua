@@ -15,7 +15,7 @@ return {
     {
       name = "RAYLIB_VERSION_MINOR",
       type = "INT",
-      value = 1,
+      value = 5,
       description = ""
     },
     {
@@ -27,7 +27,7 @@ return {
     {
       name = "RAYLIB_VERSION",
       type = "STRING",
-      value = "5.1-dev",
+      value = "5.5-dev",
       description = ""
     },
     {
@@ -850,12 +850,22 @@ return {
         {
           type = "unsigned char *",
           name = "boneIds",
-          description = "Vertex bone ids, max 255 bone ids, up to 4 bones influence by vertex (skinning)"
+          description = "Vertex bone ids, max 255 bone ids, up to 4 bones influence by vertex (skinning) (shader-location = 6)"
         },
         {
           type = "float *",
           name = "boneWeights",
-          description = "Vertex bone weight, up to 4 bones influence by vertex (skinning)"
+          description = "Vertex bone weight, up to 4 bones influence by vertex (skinning) (shader-location = 7)"
+        },
+        {
+          type = "Matrix *",
+          name = "boneMatrices",
+          description = "Bones animated transformation matrices"
+        },
+        {
+          type = "int",
+          name = "boneCount",
+          description = "Number of bones"
         },
         {
           type = "unsigned int",
@@ -1058,7 +1068,7 @@ return {
         {
           type = "Vector3",
           name = "direction",
-          description = "Ray direction"
+          description = "Ray direction (normalized)"
         }
       }
     },
@@ -2254,7 +2264,7 @@ return {
         {
           name = "GAMEPAD_BUTTON_RIGHT_TRIGGER_1",
           value = 11,
-          description = "Gamepad top/back trigger right (one), it could be a trailing button"
+          description = "Gamepad top/back trigger right (first), it could be a trailing button"
         },
         {
           name = "GAMEPAD_BUTTON_RIGHT_TRIGGER_2",
@@ -2518,6 +2528,21 @@ return {
           name = "SHADER_LOC_MAP_BRDF",
           value = 25,
           description = "Shader location: sampler2d texture: brdf"
+        },
+        {
+          name = "SHADER_LOC_VERTEX_BONEIDS",
+          value = 26,
+          description = "Shader location: vertex attribute: boneIds"
+        },
+        {
+          name = "SHADER_LOC_VERTEX_BONEWEIGHTS",
+          value = 27,
+          description = "Shader location: vertex attribute: boneWeights"
+        },
+        {
+          name = "SHADER_LOC_BONE_MATRICES",
+          value = 28,
+          description = "Shader location: array of matrices uniform: boneMatrices"
         }
       }
     },
@@ -2957,27 +2982,27 @@ return {
         {
           name = "CAMERA_CUSTOM",
           value = 0,
-          description = "Custom camera"
+          description = "Camera custom, controlled by user (UpdateCamera() does nothing)"
         },
         {
           name = "CAMERA_FREE",
           value = 1,
-          description = "Free camera"
+          description = "Camera free mode"
         },
         {
           name = "CAMERA_ORBITAL",
           value = 2,
-          description = "Orbital camera"
+          description = "Camera orbital, around target, zoom supported"
         },
         {
           name = "CAMERA_FIRST_PERSON",
           value = 3,
-          description = "First person camera"
+          description = "Camera first person"
         },
         {
           name = "CAMERA_THIRD_PERSON",
           value = 4,
-          description = "Third person camera"
+          description = "Camera third person"
         }
       }
     },
@@ -3158,12 +3183,12 @@ return {
     },
     {
       name = "ToggleFullscreen",
-      description = "Toggle window state: fullscreen/windowed (only PLATFORM_DESKTOP)",
+      description = "Toggle window state: fullscreen/windowed [resizes monitor to match window resolution] (only PLATFORM_DESKTOP)",
       returnType = "void"
     },
     {
       name = "ToggleBorderlessWindowed",
-      description = "Toggle window state: borderless windowed (only PLATFORM_DESKTOP)",
+      description = "Toggle window state: borderless windowed [resizes window to match monitor resolution] (only PLATFORM_DESKTOP)",
       returnType = "void"
     },
     {
@@ -3656,8 +3681,8 @@ return {
       params = {
         {type = "Vector2", name = "position"},
         {type = "Camera", name = "camera"},
-        {type = "float", name = "width"},
-        {type = "float", name = "height"}
+        {type = "int", name = "width"},
+        {type = "int", name = "height"}
       }
     },
     {
@@ -4043,6 +4068,14 @@ return {
       returnType = "const char *"
     },
     {
+      name = "MakeDirectory",
+      description = "Create directories (including full path requested), returns 0 on success",
+      returnType = "int",
+      params = {
+        {type = "const char *", name = "dirPath"}
+      }
+    },
+    {
       name = "ChangeDirectory",
       description = "Change working directory, return true on success",
       returnType = "bool",
@@ -4059,6 +4092,14 @@ return {
       }
     },
     {
+      name = "IsFileNameValid",
+      description = "Check if fileName is valid for the platform/OS",
+      returnType = "bool",
+      params = {
+        {type = "const char *", name = "fileName"}
+      }
+    },
+    {
       name = "LoadDirectoryFiles",
       description = "Load directory filepaths",
       returnType = "FilePathList",
@@ -4068,7 +4109,7 @@ return {
     },
     {
       name = "LoadDirectoryFilesEx",
-      description = "Load directory filepaths with extension filtering and recursive directory scan",
+      description = "Load directory filepaths with extension filtering and recursive directory scan. Use 'DIR' in the filter string to include directories in the result",
       returnType = "FilePathList",
       params = {
         {type = "const char *", name = "basePath"},
@@ -4573,7 +4614,7 @@ return {
     },
     {
       name = "DrawPixel",
-      description = "Draw a pixel",
+      description = "Draw a pixel using geometry [Can be slow, use with care]",
       returnType = "void",
       params = {
         {type = "int", name = "posX"},
@@ -4583,7 +4624,7 @@ return {
     },
     {
       name = "DrawPixelV",
-      description = "Draw a pixel (Vector version)",
+      description = "Draw a pixel using geometry (Vector version) [Can be slow, use with care]",
       returnType = "void",
       params = {
         {type = "Vector2", name = "position"},
@@ -4628,7 +4669,7 @@ return {
       description = "Draw lines sequence (using gl lines)",
       returnType = "void",
       params = {
-        {type = "Vector2 *", name = "points"},
+        {type = "const Vector2 *", name = "points"},
         {type = "int", name = "pointCount"},
         {type = "Color", name = "color"}
       }
@@ -4689,8 +4730,8 @@ return {
         {type = "int", name = "centerX"},
         {type = "int", name = "centerY"},
         {type = "float", name = "radius"},
-        {type = "Color", name = "color1"},
-        {type = "Color", name = "color2"}
+        {type = "Color", name = "inner"},
+        {type = "Color", name = "outer"}
       }
     },
     {
@@ -4827,8 +4868,8 @@ return {
         {type = "int", name = "posY"},
         {type = "int", name = "width"},
         {type = "int", name = "height"},
-        {type = "Color", name = "color1"},
-        {type = "Color", name = "color2"}
+        {type = "Color", name = "top"},
+        {type = "Color", name = "bottom"}
       }
     },
     {
@@ -4840,8 +4881,8 @@ return {
         {type = "int", name = "posY"},
         {type = "int", name = "width"},
         {type = "int", name = "height"},
-        {type = "Color", name = "color1"},
-        {type = "Color", name = "color2"}
+        {type = "Color", name = "left"},
+        {type = "Color", name = "right"}
       }
     },
     {
@@ -4850,10 +4891,10 @@ return {
       returnType = "void",
       params = {
         {type = "Rectangle", name = "rec"},
-        {type = "Color", name = "col1"},
-        {type = "Color", name = "col2"},
-        {type = "Color", name = "col3"},
-        {type = "Color", name = "col4"}
+        {type = "Color", name = "topLeft"},
+        {type = "Color", name = "bottomLeft"},
+        {type = "Color", name = "topRight"},
+        {type = "Color", name = "bottomRight"}
       }
     },
     {
@@ -4891,6 +4932,17 @@ return {
     },
     {
       name = "DrawRectangleRoundedLines",
+      description = "Draw rectangle lines with rounded edges",
+      returnType = "void",
+      params = {
+        {type = "Rectangle", name = "rec"},
+        {type = "float", name = "roundness"},
+        {type = "int", name = "segments"},
+        {type = "Color", name = "color"}
+      }
+    },
+    {
+      name = "DrawRectangleRoundedLinesEx",
       description = "Draw rectangle with rounded edges outline",
       returnType = "void",
       params = {
@@ -4928,7 +4980,7 @@ return {
       description = "Draw a triangle fan defined by points (first vertex is the center)",
       returnType = "void",
       params = {
-        {type = "Vector2 *", name = "points"},
+        {type = "const Vector2 *", name = "points"},
         {type = "int", name = "pointCount"},
         {type = "Color", name = "color"}
       }
@@ -4938,7 +4990,7 @@ return {
       description = "Draw a triangle strip defined by points",
       returnType = "void",
       params = {
-        {type = "Vector2 *", name = "points"},
+        {type = "const Vector2 *", name = "points"},
         {type = "int", name = "pointCount"},
         {type = "Color", name = "color"}
       }
@@ -4985,7 +5037,7 @@ return {
       description = "Draw spline: Linear, minimum 2 points",
       returnType = "void",
       params = {
-        {type = "Vector2 *", name = "points"},
+        {type = "const Vector2 *", name = "points"},
         {type = "int", name = "pointCount"},
         {type = "float", name = "thick"},
         {type = "Color", name = "color"}
@@ -4996,7 +5048,7 @@ return {
       description = "Draw spline: B-Spline, minimum 4 points",
       returnType = "void",
       params = {
-        {type = "Vector2 *", name = "points"},
+        {type = "const Vector2 *", name = "points"},
         {type = "int", name = "pointCount"},
         {type = "float", name = "thick"},
         {type = "Color", name = "color"}
@@ -5007,7 +5059,7 @@ return {
       description = "Draw spline: Catmull-Rom, minimum 4 points",
       returnType = "void",
       params = {
-        {type = "Vector2 *", name = "points"},
+        {type = "const Vector2 *", name = "points"},
         {type = "int", name = "pointCount"},
         {type = "float", name = "thick"},
         {type = "Color", name = "color"}
@@ -5018,7 +5070,7 @@ return {
       description = "Draw spline: Quadratic Bezier, minimum 3 points (1 control point): [p1, c2, p3, c4...]",
       returnType = "void",
       params = {
-        {type = "Vector2 *", name = "points"},
+        {type = "const Vector2 *", name = "points"},
         {type = "int", name = "pointCount"},
         {type = "float", name = "thick"},
         {type = "Color", name = "color"}
@@ -5029,7 +5081,7 @@ return {
       description = "Draw spline: Cubic Bezier, minimum 4 points (2 control points): [p1, c2, c3, p4, c5, c6...]",
       returnType = "void",
       params = {
-        {type = "Vector2 *", name = "points"},
+        {type = "const Vector2 *", name = "points"},
         {type = "int", name = "pointCount"},
         {type = "float", name = "thick"},
         {type = "Color", name = "color"}
@@ -5220,7 +5272,7 @@ return {
       returnType = "bool",
       params = {
         {type = "Vector2", name = "point"},
-        {type = "Vector2 *", name = "points"},
+        {type = "const Vector2 *", name = "points"},
         {type = "int", name = "pointCount"}
       }
     },
@@ -5245,6 +5297,17 @@ return {
         {type = "Vector2", name = "p1"},
         {type = "Vector2", name = "p2"},
         {type = "int", name = "threshold"}
+      }
+    },
+    {
+      name = "CheckCollisionCircleLine",
+      description = "Check if circle collides with a line created betweeen two points [p1] and [p2]",
+      returnType = "bool",
+      params = {
+        {type = "Vector2", name = "center"},
+        {type = "float", name = "radius"},
+        {type = "Vector2", name = "p1"},
+        {type = "Vector2", name = "p2"}
       }
     },
     {
@@ -5492,6 +5555,15 @@ return {
       }
     },
     {
+      name = "ImageFromChannel",
+      description = "Create an image from a selected channel of another image (GRAYSCALE)",
+      returnType = "Image",
+      params = {
+        {type = "Image", name = "image"},
+        {type = "int", name = "selectedChannel"}
+      }
+    },
+    {
       name = "ImageText",
       description = "Create an image from text (default font)",
       returnType = "Image",
@@ -5587,11 +5659,11 @@ return {
     },
     {
       name = "ImageKernelConvolution",
-      description = "Apply Custom Square image convolution kernel",
+      description = "Apply custom square convolution kernel to image",
       returnType = "void",
       params = {
         {type = "Image *", name = "image"},
-        {type = "float*", name = "kernel"},
+        {type = "const float *", name = "kernel"},
         {type = "int", name = "kernelSize"}
       }
     },
@@ -5850,6 +5922,18 @@ return {
       }
     },
     {
+      name = "ImageDrawLineEx",
+      description = "Draw a line defining thickness within an image",
+      returnType = "void",
+      params = {
+        {type = "Image *", name = "dst"},
+        {type = "Vector2", name = "start"},
+        {type = "Vector2", name = "end"},
+        {type = "int", name = "thick"},
+        {type = "Color", name = "color"}
+      }
+    },
+    {
       name = "ImageDrawCircle",
       description = "Draw a filled circle within an image",
       returnType = "void",
@@ -5937,6 +6021,66 @@ return {
         {type = "Image *", name = "dst"},
         {type = "Rectangle", name = "rec"},
         {type = "int", name = "thick"},
+        {type = "Color", name = "color"}
+      }
+    },
+    {
+      name = "ImageDrawTriangle",
+      description = "Draw triangle within an image",
+      returnType = "void",
+      params = {
+        {type = "Image *", name = "dst"},
+        {type = "Vector2", name = "v1"},
+        {type = "Vector2", name = "v2"},
+        {type = "Vector2", name = "v3"},
+        {type = "Color", name = "color"}
+      }
+    },
+    {
+      name = "ImageDrawTriangleEx",
+      description = "Draw triangle with interpolated colors within an image",
+      returnType = "void",
+      params = {
+        {type = "Image *", name = "dst"},
+        {type = "Vector2", name = "v1"},
+        {type = "Vector2", name = "v2"},
+        {type = "Vector2", name = "v3"},
+        {type = "Color", name = "c1"},
+        {type = "Color", name = "c2"},
+        {type = "Color", name = "c3"}
+      }
+    },
+    {
+      name = "ImageDrawTriangleLines",
+      description = "Draw triangle outline within an image",
+      returnType = "void",
+      params = {
+        {type = "Image *", name = "dst"},
+        {type = "Vector2", name = "v1"},
+        {type = "Vector2", name = "v2"},
+        {type = "Vector2", name = "v3"},
+        {type = "Color", name = "color"}
+      }
+    },
+    {
+      name = "ImageDrawTriangleFan",
+      description = "Draw a triangle fan defined by points within an image (first vertex is the center)",
+      returnType = "void",
+      params = {
+        {type = "Image *", name = "dst"},
+        {type = "Vector2 *", name = "points"},
+        {type = "int", name = "pointCount"},
+        {type = "Color", name = "color"}
+      }
+    },
+    {
+      name = "ImageDrawTriangleStrip",
+      description = "Draw a triangle strip defined by points within an image",
+      returnType = "void",
+      params = {
+        {type = "Image *", name = "dst"},
+        {type = "Vector2 *", name = "points"},
+        {type = "int", name = "pointCount"},
         {type = "Color", name = "color"}
       }
     },
@@ -6267,6 +6411,16 @@ return {
       }
     },
     {
+      name = "ColorLerp",
+      description = "Get color lerp interpolation between two colors, factor [0.0f..1.0f]",
+      returnType = "Color",
+      params = {
+        {type = "Color", name = "color1"},
+        {type = "Color", name = "color2"},
+        {type = "float", name = "factor"}
+      }
+    },
+    {
       name = "GetColor",
       description = "Get Color structure from hexadecimal value",
       returnType = "Color",
@@ -6318,7 +6472,7 @@ return {
     },
     {
       name = "LoadFontEx",
-      description = "Load font from file with extended parameters, use NULL for codepoints and 0 for codepointCount to load the default character setFont",
+      description = "Load font from file with extended parameters, use NULL for codepoints and 0 for codepointCount to load the default character set, font size is provided in pixels height",
       returnType = "Font",
       params = {
         {type = "const char *", name = "fileName"},
@@ -6747,6 +6901,22 @@ return {
       }
     },
     {
+      name = "TextToSnake",
+      description = "Get Snake case notation version of provided string",
+      returnType = "const char *",
+      params = {
+        {type = "const char *", name = "text"}
+      }
+    },
+    {
+      name = "TextToCamel",
+      description = "Get Camel case notation version of provided string",
+      returnType = "const char *",
+      params = {
+        {type = "const char *", name = "text"}
+      }
+    },
+    {
       name = "TextToInteger",
       description = "Get integer value from text (negative values not supported)",
       returnType = "int",
@@ -6809,7 +6979,7 @@ return {
       description = "Draw a triangle strip defined by points",
       returnType = "void",
       params = {
-        {type = "Vector3 *", name = "points"},
+        {type = "const Vector3 *", name = "points"},
         {type = "int", name = "pointCount"},
         {type = "Color", name = "color"}
       }
@@ -7087,6 +7257,30 @@ return {
       }
     },
     {
+      name = "DrawModelPoints",
+      description = "Draw a model as points",
+      returnType = "void",
+      params = {
+        {type = "Model", name = "model"},
+        {type = "Vector3", name = "position"},
+        {type = "float", name = "scale"},
+        {type = "Color", name = "tint"}
+      }
+    },
+    {
+      name = "DrawModelPointsEx",
+      description = "Draw a model as points with extended parameters",
+      returnType = "void",
+      params = {
+        {type = "Model", name = "model"},
+        {type = "Vector3", name = "position"},
+        {type = "Vector3", name = "rotationAxis"},
+        {type = "float", name = "rotationAngle"},
+        {type = "Vector3", name = "scale"},
+        {type = "Color", name = "tint"}
+      }
+    },
+    {
       name = "DrawBoundingBox",
       description = "Draw bounding box (wires)",
       returnType = "void",
@@ -7103,7 +7297,7 @@ return {
         {type = "Camera", name = "camera"},
         {type = "Texture2D", name = "texture"},
         {type = "Vector3", name = "position"},
-        {type = "float", name = "size"},
+        {type = "float", name = "scale"},
         {type = "Color", name = "tint"}
       }
     },
@@ -7426,6 +7620,16 @@ return {
       }
     },
     {
+      name = "UpdateModelAnimationBoneMatrices",
+      description = "Update model animation mesh bone matrices (Note GPU skinning does not work on Mac)",
+      returnType = "void",
+      params = {
+        {type = "Model", name = "model"},
+        {type = "ModelAnimation", name = "anim"},
+        {type = "int", name = "frame"}
+      }
+    },
+    {
       name = "CheckCollisionSpheres",
       description = "Check collision between two spheres",
       returnType = "bool",
@@ -7722,12 +7926,12 @@ return {
     },
     {
       name = "WaveCrop",
-      description = "Crop a wave to defined samples range",
+      description = "Crop a wave to defined frames range",
       returnType = "void",
       params = {
         {type = "Wave *", name = "wave"},
-        {type = "int", name = "initSample"},
-        {type = "int", name = "finalSample"}
+        {type = "int", name = "initFrame"},
+        {type = "int", name = "finalFrame"}
       }
     },
     {
@@ -8021,7 +8225,7 @@ return {
     },
     {
       name = "AttachAudioStreamProcessor",
-      description = "Attach audio stream processor to stream, receives the samples as <float>s",
+      description = "Attach audio stream processor to stream, receives the samples as 'float'",
       returnType = "void",
       params = {
         {type = "AudioStream", name = "stream"},
@@ -8039,7 +8243,7 @@ return {
     },
     {
       name = "AttachAudioMixedProcessor",
-      description = "Attach audio stream processor to the entire audio pipeline, receives the samples as <float>s",
+      description = "Attach audio stream processor to the entire audio pipeline, receives the samples as 'float'",
       returnType = "void",
       params = {
         {type = "AudioCallback", name = "processor"}

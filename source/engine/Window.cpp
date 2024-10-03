@@ -1,0 +1,12 @@
+////////////////////////////////////////////
+//
+//	MyLDe - My Ludum Dare engine
+//
+//	@WraithOne
+//
+//	My little game engine for Ludum Dare
+//	and other Game Jams
+//
+////////////////////////////////////////////
+
+#include "../include/Window.h"

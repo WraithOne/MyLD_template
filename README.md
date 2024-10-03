@@ -3,11 +3,9 @@ Game template for Ludum Dare Game Jam
 
 IDE´s used:
 
-Visual Studio 2022\
-Windows (MSVS/)
+Visual Studio 2022
+Visual Studio Code
 
-CodeBlocks\
-Ubuntu/Linux (CodeBlocks/)
 
 External Library´s used:\
 Raylib (https://www.raylib.com/)

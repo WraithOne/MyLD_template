@@ -9,7 +9,7 @@
 //
 ////////////////////////////////////////////
 
-#include "../include/Scene.h"
+#include "../include/intro.h"
 
 Intro::Intro()
 {
