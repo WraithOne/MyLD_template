@@ -10,8 +10,8 @@
 ////////////////////////////////////////////
 
 #pragma once
-#include <3rdparty.h>
-#include <Scene.h>
+#include "3rdParty.h"
+#include "Scene.h"
 
 class SceneManager
 {
@@ -25,9 +25,9 @@ public:
 	void loadScene();
 	void unloadScene();
 
-	void InputScene(SDL_Event* event);
+	void InputScene(void* event);
 	void UpdateScene(float* elapsedTime);
-	void RenderScene(SDL_Renderer* renderer);
+	void RenderScene(void* renderer);
 
 private:
 	std::unordered_map<std::string, Scene*> m_Scenes;
@@ -42,9 +42,9 @@ public:
 
 	void Load();
 
-	void Input(SDL_Event* event);
+	void Input(void* event);
 	void Update(float* elapsedTime);
-	void Render(SDL_Renderer* renderer);
+	void Render(void* renderer);
 
 	void unLoad();
 

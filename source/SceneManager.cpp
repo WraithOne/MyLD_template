@@ -86,7 +86,7 @@ void SceneManager::unloadScene()
         m_activeScene->unLoad();
 }
 
-void SceneManager::InputScene(SDL_Event* event)
+void SceneManager::InputScene(void* event)
 {
     m_activeScene->Input(event);
 }
@@ -96,7 +96,7 @@ void SceneManager::UpdateScene(float* elapsedTime)
     m_activeScene->Update(elapsedTime);
 }
 
-void SceneManager::RenderScene(SDL_Renderer* renderer)
+void SceneManager::RenderScene(void* renderer)
 {
     m_activeScene->Render(renderer);
 }
@@ -122,15 +122,15 @@ void defaultScene::Load()
     }
 }
 
-void defaultScene::Input(SDL_Event* event)
+void defaultScene::Input(void* event)
 {
-
+    
 }
 void defaultScene::Update(float* elapsedTime)
 {
-
+    
 }
-void defaultScene::Render(SDL_Renderer* renderer)
+void defaultScene::Render(void* renderer)
 {
 
 }

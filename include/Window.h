@@ -10,7 +10,7 @@
 ////////////////////////////////////////////
 
 #pragma once
-#include <3rdParty.h>
+#include "3rdParty.h"
 
 class Window
 {
@@ -23,6 +23,6 @@ private:
 	int SCREEN_WIDTH = 1080;
 	int SCREEN_HEIGHT = 720;
 	unsigned TARGETFPS = 60;
-	char* WINDOWTITLE = "MyLD_template";
+	const char* WINDOWTITLE = "MyLD_template";
 	int MAXFRAMESKIP = 5;
 };

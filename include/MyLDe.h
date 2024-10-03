@@ -14,5 +14,9 @@
 #define MYLDE_H_
 
 #include "Application.h"
+#include "Window.h"
+#include "Scene.h"
+#include "SceneManager.h"
+
 #endif // !MYLDE_H_
 
