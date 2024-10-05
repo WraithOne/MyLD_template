@@ -1,6 +1,13 @@
 {
-    "cmake.configureOnOpen": false,
-    "files.associations": {
-        "*.gitignore": "cpp"
-    }
+    "cmake.ignoreCMakeListsMissing": true,
+
+    "terminal.integrated.profiles.windows": {
+        "BASH": {
+            "path": "F:\\msys64\\usr\\bin\\bash.exe",
+            "args": [ "--login", "-i"],
+            "env": { "MSYSTEM": "MINGW64", "CHERE_INVOKING": "1", "MSYS2_PATH_TYPE": "inherit"}
+        }
+    },
+    "terminal.integrated.defaultProfile.windows": "BASH",
+    "git.path": "F:\\msys64\\usr\\bin\\git.exe"
 }

@@ -10,7 +10,7 @@
 ////////////////////////////////////////////
 
 #pragma once
-#include "Scene.h"
+#include "engine\\Scene.h"
 
 class Intro : public Scene
 {
@@ -20,9 +20,9 @@ public:
 
 	void Load();
 
-	void Input(SDL_Event* event);
+	void Input(void* event);
 	void Update(float* elapsedTime);
-	void Render(SDL_Renderer* renderer);
+	void Render(void* renderer);
 
 	void unLoad();
 

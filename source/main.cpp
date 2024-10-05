@@ -11,8 +11,15 @@
 
 #include "../include/MyLDe.h"
 
+using namespace std;
+
 int main(int argc, char** argv)
 {
+	vector<string> msg {"Hello", "C++", "World", "from", "VS Code", "and the C++ extension!"};
 
-	return 0;
+    for (const string& word : msg)
+    {
+        cout << word << " ";
+    }
+    cout << endl;
 }

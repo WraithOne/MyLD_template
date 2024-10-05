@@ -13,10 +13,10 @@
 #ifndef MYLDE_H_
 #define MYLDE_H_
 
-#include "Application.h"
-#include "Window.h"
-#include "Scene.h"
-#include "SceneManager.h"
+#include "engine/Application.h"
+#include "engine/Window.h"
+#include "engine/Scene.h"
+#include "engine/SceneManager.h"
 
 #endif // !MYLDE_H_
 

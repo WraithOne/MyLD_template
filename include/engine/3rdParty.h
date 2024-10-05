@@ -11,7 +11,7 @@
 
 #pragma once
 // Raylib
-#include "../external/raylib/src/raylib.h"
+#include "../../external/raylib/src/raylib.h"
 
 // Assimp
 
@@ -20,5 +20,6 @@
 #include <string>
 #include <unordered_map>
 #include <list>
+#include <iostream>
 #include <vector>
 #include <string>
