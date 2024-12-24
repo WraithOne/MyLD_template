@@ -292,6 +292,16 @@ const char *GetClipboardText(void)
     return NULL;
 }
 
+// Get clipboard image
+Image GetClipboardImage(void)
+{
+    Image image = { 0 };
+
+    TRACELOG(LOG_WARNING, "GetClipboardImage() not implemented on target platform");
+
+    return image;
+}
+
 // Show mouse cursor
 void ShowCursor(void)
 {
@@ -371,6 +381,12 @@ int SetGamepadMappings(const char *mappings)
     return 0;
 }
 
+// Set gamepad vibration
+void SetGamepadVibration(int gamepad, float leftMotor, float rightMotor, float duration)
+{
+    TRACELOG(LOG_WARNING, "SetGamepadVibration() not implemented on target platform");
+}
+
 // Set mouse position XY
 void SetMousePosition(int x, int y)
 {
@@ -429,7 +445,6 @@ void PollInputEvents(void)
 
     // TODO: Poll input events for current platform
 }
-
 
 //----------------------------------------------------------------------------------
 // Module Internal Functions Definition

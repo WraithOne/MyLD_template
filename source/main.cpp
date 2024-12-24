@@ -11,15 +11,20 @@
 
 #include "../include/MyLDe.h"
 
-using namespace std;
 
 int main(int argc, char** argv)
 {
-	vector<string> msg {"Hello", "C++", "World", "from", "VS Code", "and the C++ extension!"};
-
-    for (const string& word : msg)
+    InitWindow(800, 600, "MyLD template");
+    
+    while (!WindowShouldClose())
     {
-        cout << word << " ";
+        BeginDrawing();
+        ClearBackground(RAYWHITE);
+        DrawText("Congrats! You created your first window!", 190, 200, 20, LIGHTGRAY);
+        EndDrawing();
     }
-    cout << endl;
+  
+    CloseWindow();
+
+    return 0;
 }

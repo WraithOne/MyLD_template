@@ -801,10 +801,10 @@ Wave LoadWaveFromMemory(const char *fileType, const unsigned char *fileData, int
             wave.sampleRate = wav.sampleRate;
             wave.sampleSize = 16;
             wave.channels = wav.channels;
-            wave.data = (short *)RL_MALLOC(wave.frameCount*wave.channels*sizeof(short));
+            wave.data = (short *)RL_MALLOC((size_t)wave.frameCount*wave.channels*sizeof(short));
 
             // NOTE: We are forcing conversion to 16bit sample size on reading
-            drwav_read_pcm_frames_s16(&wav, wav.totalPCMFrameCount, wave.data);
+            drwav_read_pcm_frames_s16(&wav, wave.frameCount, wave.data);
         }
         else TRACELOG(LOG_WARNING, "WAVE: Failed to load WAV data");
 
@@ -892,8 +892,8 @@ Wave LoadWaveFromMemory(const char *fileType, const unsigned char *fileData, int
     return wave;
 }
 
-// Checks if wave data is ready
-bool IsWaveReady(Wave wave)
+// Checks if wave data is valid (data loaded and parameters)
+bool IsWaveValid(Wave wave)
 {
     bool result = false;
 
@@ -993,8 +993,8 @@ Sound LoadSoundAlias(Sound source)
 }
 
 
-// Checks if a sound is ready
-bool IsSoundReady(Sound sound)
+// Checks if a sound is valid (data loaded and buffers initialized)
+bool IsSoundValid(Sound sound)
 {
     bool result = false;
 
@@ -1550,7 +1550,7 @@ Music LoadMusicStreamFromMemory(const char *fileType, const unsigned char *data,
     else if ((strcmp(fileType, ".ogg") == 0) || (strcmp(fileType, ".OGG") == 0))
     {
         // Open ogg audio stream
-        stb_vorbis* ctxOgg = stb_vorbis_open_memory((const unsigned char *)data, dataSize, NULL, NULL);
+        stb_vorbis *ctxOgg = stb_vorbis_open_memory((const unsigned char *)data, dataSize, NULL, NULL);
 
         if (ctxOgg != NULL)
         {
@@ -1726,8 +1726,8 @@ Music LoadMusicStreamFromMemory(const char *fileType, const unsigned char *data,
     return music;
 }
 
-// Checks if a music stream is ready
-bool IsMusicReady(Music music)
+// Checks if a music stream is valid (context and buffers initialized)
+bool IsMusicValid(Music music)
 {
     return ((music.ctxData != NULL) &&          // Validate context loaded
             (music.frameCount > 0) &&           // Validate audio frame count
@@ -1855,6 +1855,8 @@ void SeekMusicStream(Music music, float position)
 
     ma_mutex_lock(&AUDIO.System.lock);
     music.stream.buffer->framesProcessed = positionInFrames;
+    music.stream.buffer->isSubBufferProcessed[0] = true;
+    music.stream.buffer->isSubBufferProcessed[1] = true;
     ma_mutex_unlock(&AUDIO.System.lock);
 }
 
@@ -2119,8 +2121,8 @@ AudioStream LoadAudioStream(unsigned int sampleRate, unsigned int sampleSize, un
     return stream;
 }
 
-// Checks if an audio stream is ready
-bool IsAudioStreamReady(AudioStream stream)
+// Checks if an audio stream is valid (buffers initialized)
+bool IsAudioStreamValid(AudioStream stream)
 {
     return ((stream.buffer != NULL) &&    // Validate stream buffer
             (stream.sampleRate > 0) &&    // Validate sample rate is supported
@@ -2459,23 +2461,18 @@ static ma_uint32 ReadAudioBufferFramesInMixingFormat(AudioBuffer *audioBuffer, f
 
         float *runningFramesOut = framesOut + (totalOutputFramesProcessed*audioBuffer->converter.channelsOut);
 
-        /* At this point we can convert the data to our mixing format. */
-        ma_uint64 inputFramesProcessedThisIteration = ReadAudioBufferFramesInInternalFormat(audioBuffer, inputBuffer, (ma_uint32)inputFramesToProcessThisIteration);    /* Safe cast. */
+        // At this point we can convert the data to our mixing format
+        ma_uint64 inputFramesProcessedThisIteration = ReadAudioBufferFramesInInternalFormat(audioBuffer, inputBuffer, (ma_uint32)inputFramesToProcessThisIteration);
         ma_uint64 outputFramesProcessedThisIteration = outputFramesToProcessThisIteration;
         ma_data_converter_process_pcm_frames(&audioBuffer->converter, inputBuffer, &inputFramesProcessedThisIteration, runningFramesOut, &outputFramesProcessedThisIteration);
 
-        totalOutputFramesProcessed += (ma_uint32)outputFramesProcessedThisIteration; /* Safe cast. */
+        totalOutputFramesProcessed += (ma_uint32)outputFramesProcessedThisIteration; // Safe cast
 
-        if (inputFramesProcessedThisIteration < inputFramesToProcessThisIteration)
-        {
-            break;  /* Ran out of input data. */
-        }
+        if (inputFramesProcessedThisIteration < inputFramesToProcessThisIteration) break;  // Ran out of input data
 
-        /* This should never be hit, but will add it here for safety. Ensures we get out of the loop when no input nor output frames are processed. */
-        if (inputFramesProcessedThisIteration == 0 && outputFramesProcessedThisIteration == 0)
-        {
-            break;
-        }
+        // This should never be hit, but added here for safety
+        // Ensures we get out of the loop when no input nor output frames are processed
+        if ((inputFramesProcessedThisIteration == 0) && (outputFramesProcessedThisIteration == 0)) break;
     }
 
     return totalOutputFramesProcessed;
