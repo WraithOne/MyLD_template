@@ -22,6 +22,7 @@ public:
 	void addScene(Scene* scene, std::string name);
 	void removeScene(std::string name);
 	void setActive(std::string name);
+	std::string getActive();
 	void loadScene();
 	void unloadScene();
 

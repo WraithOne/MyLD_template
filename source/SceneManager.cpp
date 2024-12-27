@@ -56,6 +56,7 @@ void SceneManager::removeScene(std::string name)
     else
     {
         // Not found, do nothing
+		// todo: log error - report that scene is not found
     }
 }
 
@@ -71,7 +72,24 @@ void SceneManager::setActive(std::string name)
     else
     {
         // Not found, do nothing
+		// todo: log error - report that scene is not found
     }
+}
+
+std::string SceneManager::getActive()
+{
+    for (auto it = m_Scenes.begin(); it != m_Scenes.end();)
+    {
+		if (it->second == m_activeScene)
+		{
+			return it->first;
+		}
+		++it;
+     
+    }
+
+	// todo: log error - should never happen
+	return "defaultScene";
 }
 
 void SceneManager::loadScene()
